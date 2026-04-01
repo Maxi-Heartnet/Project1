@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-import pytest
 from unittest.mock import MagicMock, patch
 
 from chatbot.chat import ask_string, ask_number, collect_features, predict_range

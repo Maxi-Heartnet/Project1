@@ -3,6 +3,8 @@ import joblib
 import numpy as np
 import pandas as pd
 
+from ml.prepare import ALL_FEATURES
+
 MODEL_PATH = 'ml/model.pkl'
 
 
@@ -67,7 +69,7 @@ def main(model_path=MODEL_PATH):
 
     while True:
         features = collect_features()
-        low, high = predict_range(model, encoder, pd.DataFrame([features]))
+        low, high = predict_range(model, encoder, pd.DataFrame([features], columns=ALL_FEATURES))
         print(f"\nEstimated price: ${low:,.0f} – ${high:,.0f} USD\n")
         again = ask_string("Estimate another? (yes/no) > ", choices=['yes', 'no'])
         if again == 'no':
