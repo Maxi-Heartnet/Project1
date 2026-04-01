@@ -1,0 +1,6 @@
+data/listings.csv
+data/raw/
+ml/model.pkl
+__pycache__/
+*.pyc
+.pytest_cache/
