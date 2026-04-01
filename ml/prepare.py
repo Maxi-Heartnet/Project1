@@ -32,10 +32,12 @@ def load_and_prepare(csv_path):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     preprocessor = build_preprocessor()
     preprocessor.fit(X_train)
+    df_train_clean = df.loc[X_train.index]
     return (
         preprocessor.transform(X_train),
         preprocessor.transform(X_test),
         y_train,
         y_test,
         preprocessor,
+        df_train_clean,
     )

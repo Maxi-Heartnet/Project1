@@ -40,10 +40,12 @@ def test_load_and_prepare_shapes(tmp_path):
     ]
     csv = tmp_path / "listings.csv"
     pd.DataFrame(rows).to_csv(csv, index=False)
-    X_train, X_test, y_train, y_test, preprocessor = load_and_prepare(str(csv))
+    X_train, X_test, y_train, y_test, preprocessor, df_train_clean = load_and_prepare(str(csv))
     assert X_train.shape[0] == 16   # 80% of 20
     assert X_test.shape[0] == 4
     assert X_train.shape[1] == X_test.shape[1]
+    assert df_train_clean.shape[0] == X_train.shape[0]
+    assert {'price', 'bedrooms', 'area_m2'}.issubset(df_train_clean.columns)
 
 
 def test_preprocessor_ignores_unknown_sector():
