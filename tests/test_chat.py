@@ -109,8 +109,9 @@ def test_display_tier_budget_for_low_price():
 def test_display_tier_midpoint_passed_to_clusterer():
     clusterer = _make_mock_clusterer(1)
     display_tier(clusterer, MOCK_LABEL_MAP, MOCK_CLUSTER_STATS, bedrooms=3, area_m2=120, low=160_000, high=200_000)
-    call_args = clusterer.predict.call_args[0][0]
-    # midpoint of 160k–200k is 180k; the input should be [[3, 120, 180000]]
-    assert call_args[0][0] == 3
-    assert call_args[0][1] == 120
-    assert call_args[0][2] == 180_000.0
+    call_arg = clusterer.predict.call_args[0][0]
+    # midpoint of 160k–200k is 180k; input should be a DataFrame with bedrooms/area_m2/price columns
+    assert list(call_arg.columns) == ['bedrooms', 'area_m2', 'price']
+    assert call_arg.iloc[0]['bedrooms'] == 3
+    assert call_arg.iloc[0]['area_m2'] == 120
+    assert call_arg.iloc[0]['price'] == 180_000.0

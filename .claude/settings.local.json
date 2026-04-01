@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git commit:*)",
+      "Bash(grep -E \"\\\\.\\(py|txt\\)$|\\\\.gitignore\")",
+      "Bash(git -C /c/Users/misae/Project1 log --format=\"%H %s\")",
+      "Bash(git add:*)"
+    ]
+  }
+}

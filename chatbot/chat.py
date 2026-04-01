@@ -51,7 +51,8 @@ def predict_range(model, encoder, features_df):
 
 def display_tier(clusterer, cluster_label_map, cluster_stats, bedrooms, area_m2, low, high):
     midpoint = (low + high) / 2
-    cluster_idx = clusterer.predict([[bedrooms, area_m2, midpoint]])[0]
+    cluster_input = pd.DataFrame([[bedrooms, area_m2, midpoint]], columns=['bedrooms', 'area_m2', 'price'])
+    cluster_idx = clusterer.predict(cluster_input)[0]
     tier = cluster_label_map[cluster_idx]
     stats = cluster_stats[tier]
     price_lo = stats['price_p10'] / 1000
