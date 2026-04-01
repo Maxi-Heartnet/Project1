@@ -5,8 +5,8 @@ from ml.prepare import clean, load_and_prepare
 
 def make_df(rows):
     defaults = {
-        'bedrooms': 3, 'bathrooms': 2, 'area_m2': 100, 'parking': 1,
-        'floor_level': None, 'sector': 'Piantini', 'property_type': 'apartment',
+        'bedrooms': 3, 'area_m2': 100,
+        'sector': 'Piantini', 'property_type': 'apartment',
         'price': 150_000,
     }
     return pd.DataFrame([{**defaults, **r} for r in rows])
@@ -31,16 +31,10 @@ def test_clean_removes_price_outliers():
     assert result.iloc[0]['price'] == 150_000
 
 
-def test_clean_fills_floor_level_with_zero():
-    df = make_df([{'floor_level': None}])
-    result = clean(df)
-    assert result.iloc[0]['floor_level'] == 0
-
-
 def test_load_and_prepare_shapes(tmp_path):
     rows = [
-        {'bedrooms': (i % 4) + 1, 'bathrooms': 2, 'area_m2': 80 + i * 10,
-         'parking': 1, 'floor_level': i % 5, 'sector': 'Naco',
+        {'bedrooms': (i % 4) + 1, 'area_m2': 80 + i * 10,
+         'sector': 'Naco',
          'property_type': 'apartment', 'price': 100_000 + i * 10_000}
         for i in range(20)
     ]

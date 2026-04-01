@@ -9,8 +9,7 @@ from bs4 import BeautifulSoup
 BASE_URL = "https://www.corotos.com.do/sc/inmuebles/apartamentos"
 RAW_DIR = "data/raw"
 OUTPUT_CSV = "data/listings.csv"
-FIELDNAMES = ['price', 'sector', 'property_type', 'bedrooms', 'bathrooms',
-              'area_m2', 'parking', 'floor_level']
+FIELDNAMES = ['price', 'sector', 'property_type', 'bedrooms', 'area_m2']
 
 # CSS selectors — verified against live site (corotos.com.do)
 CARD_SELECTOR = "div.listing-item"
@@ -61,24 +60,17 @@ def parse_listing(card):
         property_type = 'apartment'
 
     details = [el.get_text(strip=True) for el in card.select(DETAILS_SELECTOR)]
-    bedrooms = bathrooms = area_m2 = parking = floor_level = None
+    bedrooms = area_m2 = None
     for d in details:
         dl = d.lower()
         if bedrooms is None and ('hab' in dl or 'bedroom' in dl):
             bedrooms = _first_int(d)
-        elif bathrooms is None and ('baño' in dl or 'bathroom' in dl or 'bano' in dl):
-            bathrooms = _first_int(d)
         elif area_m2 is None and ('m²' in d or 'm2' in dl or 'm�' in d):
             area_m2 = _first_int(d)
-        elif parking is None and ('parking' in dl or 'garage' in dl or 'garaje' in dl):
-            parking = _first_int(d)
-        elif floor_level is None and ('piso' in dl or 'floor' in dl):
-            floor_level = _first_int(d)
 
     return {
         'price': price, 'sector': sector, 'property_type': property_type,
-        'bedrooms': bedrooms, 'bathrooms': bathrooms, 'area_m2': area_m2,
-        'parking': parking, 'floor_level': floor_level,
+        'bedrooms': bedrooms, 'area_m2': area_m2,
     }
 
 
@@ -111,7 +103,7 @@ def scrape(max_pages=30, use_cache=True):
             break
         for card in cards:
             row = parse_listing(card)
-            if row['price'] and row['area_m2']:
+            if row['price'] and row['price'] >= 10_000 and row['area_m2']:
                 listings.append(row)
         print(f"Page {page_num}: {len(cards)} cards | total so far: {len(listings)}")
         time.sleep(1)

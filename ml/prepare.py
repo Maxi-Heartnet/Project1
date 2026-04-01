@@ -3,7 +3,7 @@ from sklearn.compose import ColumnTransformer
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder
 
-NUMERIC_FEATURES = ['bedrooms', 'bathrooms', 'area_m2', 'parking', 'floor_level']
+NUMERIC_FEATURES = ['bedrooms', 'area_m2']
 CATEGORICAL_FEATURES = ['sector', 'property_type']
 ALL_FEATURES = NUMERIC_FEATURES + CATEGORICAL_FEATURES
 PRICE_MIN = 10_000
@@ -13,9 +13,7 @@ PRICE_MAX = 5_000_000
 def clean(df):
     df = df.dropna(subset=['price', 'area_m2'])
     df = df[(df['price'] >= PRICE_MIN) & (df['price'] <= PRICE_MAX)].copy()
-    df['floor_level'] = df['floor_level'].astype(float).fillna(0.0)
-    for col in ['bedrooms', 'bathrooms', 'parking']:
-        df[col] = df[col].fillna(df[col].median())
+    df['bedrooms'] = df['bedrooms'].fillna(df['bedrooms'].median())
     return df
 
 
