@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from unittest.mock import MagicMock, patch
 
-from chatbot.chat import ask_string, ask_number, collect_features, predict_range
+from chatbot.chat import ask_string, ask_number, collect_features, predict_range, display_tier
 
 
 def test_ask_string_accepts_valid_choice():
@@ -61,3 +61,56 @@ def test_collect_features_returns_correct_keys():
     assert features['bedrooms'] == 3
     assert features['area_m2'] == 120.0
     assert features['sector'] == 'Piantini'
+
+
+# --- display_tier tests ---
+
+MOCK_CLUSTER_STATS = {
+    'Budget':    {'price_p10': 80_000,  'price_p90': 150_000, 'area_p10': 50,  'area_p90': 100, 'beds_p10': 1, 'beds_p90': 2},
+    'Mid-Range': {'price_p10': 150_000, 'price_p90': 280_000, 'area_p10': 90,  'area_p90': 160, 'beds_p10': 2, 'beds_p90': 3},
+    'Luxury':    {'price_p10': 280_000, 'price_p90': 500_000, 'area_p10': 140, 'area_p90': 300, 'beds_p10': 3, 'beds_p90': 5},
+}
+
+MOCK_LABEL_MAP = {0: 'Budget', 1: 'Mid-Range', 2: 'Luxury'}
+
+
+def _make_mock_clusterer(predicted_index):
+    mock = MagicMock()
+    mock.predict.return_value = np.array([predicted_index])
+    return mock
+
+
+def test_display_tier_returns_string_with_tier_label():
+    clusterer = _make_mock_clusterer(1)  # Mid-Range
+    result = display_tier(clusterer, MOCK_LABEL_MAP, MOCK_CLUSTER_STATS, bedrooms=3, area_m2=120, low=160_000, high=200_000)
+    assert 'Mid-Range' in result
+
+
+def test_display_tier_contains_stats_values():
+    clusterer = _make_mock_clusterer(0)  # Budget
+    result = display_tier(clusterer, MOCK_LABEL_MAP, MOCK_CLUSTER_STATS, bedrooms=2, area_m2=80, low=90_000, high=140_000)
+    assert 'Budget' in result
+    # stats for Budget tier should appear in the output
+    assert '80k' in result or '80,000' in result or '80K' in result or '$80' in result
+
+
+def test_display_tier_luxury_for_high_price():
+    clusterer = _make_mock_clusterer(2)  # Luxury
+    result = display_tier(clusterer, MOCK_LABEL_MAP, MOCK_CLUSTER_STATS, bedrooms=4, area_m2=200, low=350_000, high=450_000)
+    assert 'Luxury' in result
+
+
+def test_display_tier_budget_for_low_price():
+    clusterer = _make_mock_clusterer(0)  # Budget
+    result = display_tier(clusterer, MOCK_LABEL_MAP, MOCK_CLUSTER_STATS, bedrooms=1, area_m2=55, low=85_000, high=120_000)
+    assert 'Budget' in result
+
+
+def test_display_tier_midpoint_passed_to_clusterer():
+    clusterer = _make_mock_clusterer(1)
+    display_tier(clusterer, MOCK_LABEL_MAP, MOCK_CLUSTER_STATS, bedrooms=3, area_m2=120, low=160_000, high=200_000)
+    call_args = clusterer.predict.call_args[0][0]
+    # midpoint of 160k–200k is 180k; the input should be [[3, 120, 180000]]
+    assert call_args[0][0] == 3
+    assert call_args[0][1] == 120
+    assert call_args[0][2] == 180_000.0
