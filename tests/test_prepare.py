@@ -50,3 +50,13 @@ def test_load_and_prepare_shapes(tmp_path):
     assert X_train.shape[0] == 16   # 80% of 20
     assert X_test.shape[0] == 4
     assert X_train.shape[1] == X_test.shape[1]
+
+
+def test_preprocessor_ignores_unknown_sector():
+    from ml.prepare import build_preprocessor, ALL_FEATURES
+    preprocessor = build_preprocessor()
+    train_df = make_df([{}])  # only 'Piantini' seen during fit
+    preprocessor.fit(train_df[ALL_FEATURES])
+    test_df = make_df([{'sector': 'Los Cacicazgos'}])
+    result = preprocessor.transform(test_df[ALL_FEATURES])
+    assert result.shape[0] == 1  # did not raise, returned one row

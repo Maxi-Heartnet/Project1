@@ -13,7 +13,7 @@ PRICE_MAX = 5_000_000
 def clean(df):
     df = df.dropna(subset=['price', 'area_m2'])
     df = df[(df['price'] >= PRICE_MIN) & (df['price'] <= PRICE_MAX)].copy()
-    df['floor_level'] = df['floor_level'].fillna(0).astype(float)
+    df['floor_level'] = df['floor_level'].astype(float).fillna(0.0)
     for col in ['bedrooms', 'bathrooms', 'parking']:
         df[col] = df[col].fillna(df[col].median())
     return df
