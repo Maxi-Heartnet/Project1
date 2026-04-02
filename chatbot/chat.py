@@ -49,6 +49,14 @@ def predict_range(model, encoder, features_df):
     return np.percentile(tree_preds, 10), np.percentile(tree_preds, 90)
 
 
+def predict_tier(clusterer, cluster_label_map, cluster_stats, bedrooms, area_m2, low, high):
+    midpoint = (low + high) / 2
+    cluster_input = pd.DataFrame([[bedrooms, area_m2, midpoint]], columns=['bedrooms', 'area_m2', 'price'])
+    cluster_idx = clusterer.predict(cluster_input)[0]
+    tier = cluster_label_map[cluster_idx]
+    return {"market_tier": tier, "tier_stats": cluster_stats[tier]}
+
+
 def display_tier(clusterer, cluster_label_map, cluster_stats, bedrooms, area_m2, low, high):
     midpoint = (low + high) / 2
     cluster_input = pd.DataFrame([[bedrooms, area_m2, midpoint]], columns=['bedrooms', 'area_m2', 'price'])
