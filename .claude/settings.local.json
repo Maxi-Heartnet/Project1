@@ -4,7 +4,10 @@
       "Bash(git commit:*)",
       "Bash(grep -E \"\\\\.\\(py|txt\\)$|\\\\.gitignore\")",
       "Bash(git -C /c/Users/misae/Project1 log --format=\"%H %s\")",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(python -m pytest tests/test_chat.py -v)",
+      "Bash(pip install:*)",
+      "Bash(python -m pytest tests/test_api.py -v)"
     ]
   }
 }
