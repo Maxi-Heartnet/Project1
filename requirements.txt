@@ -1,5 +1,5 @@
 pandas
-scikit-learn>=1.2
+scikit-learn==1.7.2
 requests
 beautifulsoup4
 joblib

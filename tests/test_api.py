@@ -23,6 +23,12 @@ def _setup_mocks():
     mock_tree.predict.return_value = np.array([150_000.0])
     MOCK_ARTIFACT['model'].estimators_ = [mock_tree] * 20
     MOCK_ARTIFACT['encoder'].transform.return_value = np.zeros((1, 8))
+    MOCK_ARTIFACT['encoder'].named_transformers_ = {
+        'cat': MagicMock(categories_=[
+            np.array(['Bella Vista', 'Naco', 'Piantini']),
+            np.array(['apartment', 'house']),
+        ])
+    }
     MOCK_ARTIFACT['clusterer'].predict.return_value = np.array([1])  # Mid-Range
 
 
@@ -145,3 +151,61 @@ def test_predict_unknown_property_type_returns_200(client):
         'bedrooms': 3, 'area_m2': 120.0,
     })
     assert response.status_code == 200
+
+
+# --- Frontend route ---
+
+def test_frontend_returns_200(client):
+    response = client.get('/')
+    assert response.status_code == 200
+
+
+def test_frontend_content_type_is_html(client):
+    response = client.get('/')
+    assert 'text/html' in response.headers['content-type']
+
+
+def test_frontend_contains_form(client):
+    response = client.get('/')
+    assert '<form' in response.text
+
+
+def test_frontend_contains_submit_button(client):
+    response = client.get('/')
+    assert 'Estimate Price' in response.text
+
+
+def test_frontend_contains_datalist(client):
+    response = client.get('/')
+    assert '<datalist' in response.text
+
+
+def test_frontend_datalist_contains_known_sector(client):
+    response = client.get('/')
+    # Verify the __SECTORS__ placeholder was replaced with the actual JS array
+    assert '__SECTORS__' not in response.text
+    assert '"Piantini"' in response.text
+
+
+def test_frontend_contains_property_type_options(client):
+    response = client.get('/')
+    assert 'apartment' in response.text
+    assert 'house' in response.text
+
+
+def test_frontend_contains_page_title(client):
+    response = client.get('/')
+    assert 'Santo Domingo House Price Estimator' in response.text
+
+
+def test_frontend_serves_when_known_sectors_empty(client):
+    # Graceful fallback: page still loads when sector extraction yields empty list
+    from api import model_store
+    original = model_store.get('known_sectors')
+    model_store['known_sectors'] = []
+    try:
+        response = client.get('/')
+        assert response.status_code == 200
+        assert '<datalist' in response.text
+    finally:
+        model_store['known_sectors'] = original
