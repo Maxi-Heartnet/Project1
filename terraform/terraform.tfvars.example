@@ -1,0 +1,17 @@
+# Copy this file to terraform.tfvars and fill in any overrides.
+# All variables have sensible defaults; only override what you need.
+
+# AWS region to deploy into (default: us-east-1).
+# aws_region = "us-east-1"
+
+# EC2 instance type (default: t3.small — 2 vCPU / 2 GB RAM).
+# Minimum comfortable size for this workload. Do not go smaller.
+# instance_type = "t3.small"
+
+# HTTPS URL of the GitHub repository to clone onto the instance.
+# repo_url = "https://github.com/Maxi-Heartnet/Project1.git"
+
+# CIDR block allowed to SSH into the instance (default: 0.0.0.0/0 — open).
+# Restrict to your own IP to reduce attack surface:
+#   ssh_cidr = "203.0.113.42/32"   # replace with your actual IP
+# ssh_cidr = "0.0.0.0/0"

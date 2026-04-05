@@ -4,3 +4,10 @@ ml/model.pkl
 __pycache__/
 *.pyc
 .pytest_cache/
+
+# Terraform
+terraform/key.pem
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.backup
+terraform/*.tfvars
