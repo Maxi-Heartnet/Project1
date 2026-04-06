@@ -126,7 +126,7 @@ resource "aws_instance" "main" {
       "sudo systemctl start supervisor || true",
 
       # Clone repository
-      "git clone ${var.repo_url} /home/ubuntu/Project1",
+      "git clone --branch feat/ec2-terraform-deploy ${var.repo_url} /home/ubuntu/Project1",
 
       # Virtualenv + dependencies (no --quiet so failures are visible in logs)
       "python3 -m venv /home/ubuntu/Project1/venv",
