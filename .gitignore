@@ -1,4 +1,6 @@
 data/listings.csv
+data/listings.db
+data/scrape_status.json
 data/raw/
 ml/model.pkl
 __pycache__/
