@@ -26,7 +26,7 @@ def make_csv(tmp_path, n=40):
 def test_train_saves_artifact_with_required_keys(tmp_path):
     csv = make_csv(tmp_path)
     model_path = str(tmp_path / "model.pkl")
-    train(csv, model_path=model_path)
+    train(csv, model_path=model_path, metrics_path=str(tmp_path / 'metrics.json'))
     artifact = joblib.load(model_path)
     assert 'model' in artifact
     assert 'encoder' in artifact
@@ -38,7 +38,7 @@ def test_train_saves_artifact_with_required_keys(tmp_path):
 def test_cluster_stats_structure(tmp_path):
     csv = make_csv(tmp_path)
     model_path = str(tmp_path / "model.pkl")
-    train(csv, model_path=model_path)
+    train(csv, model_path=model_path, metrics_path=str(tmp_path / 'metrics.json'))
     artifact = joblib.load(model_path)
     cluster_stats = artifact['cluster_stats']
     assert set(cluster_stats.keys()) == {'Budget', 'Mid-Range', 'Luxury'}
@@ -52,7 +52,7 @@ def test_cluster_stats_structure(tmp_path):
 def test_cluster_label_map_structure(tmp_path):
     csv = make_csv(tmp_path)
     model_path = str(tmp_path / "model.pkl")
-    train(csv, model_path=model_path)
+    train(csv, model_path=model_path, metrics_path=str(tmp_path / 'metrics.json'))
     artifact = joblib.load(model_path)
     label_map = artifact['cluster_label_map']
     assert len(label_map) == 3
@@ -62,7 +62,7 @@ def test_cluster_label_map_structure(tmp_path):
 def test_cluster_labels_ordered_by_price(tmp_path):
     csv = make_csv(tmp_path)
     model_path = str(tmp_path / "model.pkl")
-    train(csv, model_path=model_path)
+    train(csv, model_path=model_path, metrics_path=str(tmp_path / 'metrics.json'))
     artifact = joblib.load(model_path)
     stats = artifact['cluster_stats']
     budget_mid = (stats['Budget']['price_p10'] + stats['Budget']['price_p90']) / 2
@@ -74,7 +74,7 @@ def test_cluster_labels_ordered_by_price(tmp_path):
 def test_train_model_produces_positive_predictions(tmp_path):
     csv = make_csv(tmp_path)
     model_path = str(tmp_path / "model.pkl")
-    train(csv, model_path=model_path)
+    train(csv, model_path=model_path, metrics_path=str(tmp_path / 'metrics.json'))
     artifact = joblib.load(model_path)
     model = artifact['model']
     encoder = artifact['encoder']

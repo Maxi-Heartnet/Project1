@@ -1,3 +1,5 @@
+import json
+import os
 import sys
 import numpy as np
 import joblib
@@ -5,8 +7,11 @@ from sklearn.cluster import KMeans
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, r2_score
 from ml.prepare import load_and_prepare
+from datetime import datetime, timezone
 
 MODEL_PATH = 'ml/model.pkl'
+# Default metrics path anchored to ml/ directory regardless of invocation cwd
+_METRICS_PATH = os.path.join(os.path.dirname(__file__), 'metrics.json')
 
 TIER_LABELS = ['Budget', 'Mid-Range', 'Luxury']
 
@@ -35,14 +40,33 @@ def _build_cluster_artifacts(clusterer, df_train_clean):
     return label_map, cluster_stats
 
 
-def train(csv_path, model_path=MODEL_PATH):
+def train(csv_path, model_path=MODEL_PATH, metrics_path=None):
+    if metrics_path is None:
+        metrics_path = _METRICS_PATH
+
+    # Print previous metrics if available
+    if os.path.exists(metrics_path):
+        with open(metrics_path) as f:
+            prev = json.load(f)
+        print(f"Previous: MAE ${prev['mae']:,.0f}, R² {prev['r2']:.3f}")
+
     X_train, X_test, y_train, y_test, preprocessor, df_train_clean = load_and_prepare(csv_path)
 
     model = RandomForestRegressor(n_estimators=100, random_state=42, n_jobs=-1)
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
-    print(f"MAE: ${mean_absolute_error(y_test, y_pred):,.0f}")
-    print(f"R²:  {r2_score(y_test, y_pred):.3f}")
+    mae = mean_absolute_error(y_test, y_pred)
+    r2 = r2_score(y_test, y_pred)
+    print(f"MAE: ${mae:,.0f}")
+    print(f"R²:  {r2:.3f}")
+
+    # Write metrics for next comparison
+    with open(metrics_path, 'w') as f:
+        json.dump({
+            'mae': mae,
+            'r2': r2,
+            'trained_at': datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'),
+        }, f)
 
     clusterer = KMeans(n_clusters=3, random_state=42, n_init=10)
     clusterer.fit(df_train_clean[['bedrooms', 'area_m2', 'price']])
