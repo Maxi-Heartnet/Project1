@@ -155,7 +155,7 @@ def cmd_export(
         sys.exit(1)
 
     Path(csv_path).parent.mkdir(parents=True, exist_ok=True)
-    with open(csv_path, 'w', newline='') as f:
+    with open(csv_path, 'w', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(clean)
