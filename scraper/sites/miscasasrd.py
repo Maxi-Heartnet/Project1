@@ -49,7 +49,7 @@ def _infer_property_type(text):
     return 'apartment'
 
 
-def _fetch_page(page_num, use_cache=True):
+def _fetch_page(page_num: int) -> str:
     """Fetch one page of miscasasrd.com listings and return HTML text."""
     if page_num == 1:
         url = LISTING_URL_FIRST
@@ -60,7 +60,7 @@ def _fetch_page(page_num, use_cache=True):
     return resp.text
 
 
-def scrape(max_pages: int = 50, use_cache: bool = True) -> list:
+def scrape(max_pages: int = 50) -> list:
     """Scrape miscasasrd.com and return a list of listing dicts.
 
     Each dict has 6 keys: price, sector, property_type, bedrooms, area_m2, source_url.
@@ -71,7 +71,7 @@ def scrape(max_pages: int = 50, use_cache: bool = True) -> list:
     skipped = 0
 
     for page_num in range(1, max_pages + 1):
-        html = _fetch_page(page_num, use_cache=use_cache)
+        html = _fetch_page(page_num)
         soup = BeautifulSoup(html, 'html.parser')
         cards = soup.select(CARD_SELECTOR)
 
@@ -144,8 +144,7 @@ def scrape(max_pages: int = 50, use_cache: bool = True) -> list:
                 'source_url': source_url,
             })
 
-        if not use_cache:
-            time.sleep(1)
+        time.sleep(1)
 
     if skipped:
         logger.debug('miscasasrd: skipped %d listings (non-USD or incomplete)', skipped)

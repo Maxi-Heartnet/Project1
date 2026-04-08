@@ -7,6 +7,7 @@ Usage:
 import csv
 import json
 import logging
+import sqlite3
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -107,24 +108,29 @@ def cmd_export(
     """
     # Warn if last scrape had failures
     if Path(status_path).exists():
-        with open(status_path) as f:
-            status = json.load(f)
+        try:
+            with open(status_path) as f:
+                status = json.load(f)
+        except json.JSONDecodeError:
+            print('WARNING: scrape_status.json is unreadable — export may be incomplete.', file=sys.stderr)
+            status = {}
         if status.get('sites_failed', 0) > 0:
-            k = status['sites_failed']
+            num_failed = status['sites_failed']
             names = ', '.join(status.get('failed_sites', []))
             print(
-                f'WARNING: last scrape had {k} site failure(s) ({names}) — '
+                f'WARNING: last scrape had {num_failed} site failure(s) ({names}) — '
                 'export may be incomplete. Review scrape logs before retraining.',
                 file=sys.stderr,
             )
 
-    import sqlite3
     conn = sqlite3.connect(db_path)
-    rows = conn.execute(
-        'SELECT price, sector, property_type, bedrooms, area_m2 '
-        'FROM listings WHERE price IS NOT NULL AND area_m2 IS NOT NULL'
-    ).fetchall()
-    conn.close()
+    try:
+        rows = conn.execute(
+            'SELECT price, sector, property_type, bedrooms, area_m2 '
+            'FROM listings WHERE price IS NOT NULL AND area_m2 IS NOT NULL'
+        ).fetchall()
+    finally:
+        conn.close()
 
     # Apply price bounds and sector whitespace strip
     fieldnames = ['price', 'sector', 'property_type', 'bedrooms', 'area_m2']

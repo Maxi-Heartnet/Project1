@@ -8,7 +8,7 @@ import time
 
 from bs4 import BeautifulSoup
 
-from scraper.scraper import BASE_URL, fetch_page, parse_listing
+from scraper.scraper import fetch_page, parse_listing
 
 logger = logging.getLogger(__name__)
 

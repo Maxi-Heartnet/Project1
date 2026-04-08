@@ -116,7 +116,7 @@ def test_scrape_empty_page_stops_pagination():
         return _make_response(PAGE_EMPTY)
 
     with patch('scraper.sites.indominicana.requests.get', side_effect=side_effect):
-        result = scrape(max_pages=5, use_cache=True)
+        result = scrape(max_pages=5)
 
     # Only the first page contributed a listing; iteration stopped at page 2
     assert len(result) == 1

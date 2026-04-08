@@ -24,7 +24,7 @@ def init_db(db_path: str) -> sqlite3.Connection:
     return conn
 
 
-def insert_listings(conn: sqlite3.Connection, listings: list) -> tuple:
+def insert_listings(conn: sqlite3.Connection, listings: list) -> tuple[int, int]:
     """Insert listings with URL-based deduplication.
 
     Validates that each listing dict contains exactly REQUIRED_KEYS.

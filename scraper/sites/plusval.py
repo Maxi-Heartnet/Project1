@@ -102,7 +102,7 @@ def _parse_area(card) -> float | None:
     card_text = card.get_text()
     match = re.search(r'(\d[\d.,]*)\s*m[²2]', card_text, re.IGNORECASE)
     if match:
-        raw = match.group(1).replace(',', '').replace('.', '')
+        raw = match.group(1).replace(',', '.')
         try:
             return float(raw)
         except ValueError:

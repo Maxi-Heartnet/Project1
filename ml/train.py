@@ -45,10 +45,13 @@ def train(csv_path, model_path=MODEL_PATH, metrics_path=None):
         metrics_path = _METRICS_PATH
 
     # Print previous metrics if available
-    if os.path.exists(metrics_path):
-        with open(metrics_path) as f:
-            prev = json.load(f)
-        print(f"Previous: MAE ${prev['mae']:,.0f}, R² {prev['r2']:.3f}")
+    if os.path.isfile(metrics_path):
+        try:
+            with open(metrics_path) as f:
+                prev = json.load(f)
+            print(f"Previous: MAE ${prev['mae']:,.0f}, R² {prev['r2']:.3f}")
+        except (json.JSONDecodeError, KeyError):
+            print(f"Warning: could not read previous metrics from {metrics_path} — skipping comparison")
 
     X_train, X_test, y_train, y_test, preprocessor, df_train_clean = load_and_prepare(csv_path)
 

@@ -57,7 +57,7 @@ def _infer_property_type(text):
     return 'apartment'
 
 
-def _fetch_page(skip, use_cache=True):
+def _fetch_page(skip: int) -> str:
     """Fetch one page of supercasas.com listings and return HTML text."""
     url = LISTING_URL.format(skip=skip)
     resp = requests.get(url, headers=HEADERS, timeout=15)
@@ -65,7 +65,7 @@ def _fetch_page(skip, use_cache=True):
     return resp.text
 
 
-def scrape(max_pages: int = 50, use_cache: bool = True) -> list:
+def scrape(max_pages: int = 50) -> list:
     """Scrape supercasas.com and return a list of listing dicts.
 
     Each dict has 6 keys: price, sector, property_type, bedrooms, area_m2, source_url.
@@ -77,7 +77,7 @@ def scrape(max_pages: int = 50, use_cache: bool = True) -> list:
 
     for page_num in range(max_pages):
         skip = page_num  # PagingPageSkip is zero-based page index
-        html = _fetch_page(skip, use_cache=use_cache)
+        html = _fetch_page(skip)
         soup = BeautifulSoup(html, 'html.parser')
         cards = soup.select(CARD_SELECTOR)
 
@@ -143,8 +143,7 @@ def scrape(max_pages: int = 50, use_cache: bool = True) -> list:
                 'source_url': source_url,
             })
 
-        if not use_cache:
-            time.sleep(1)
+        time.sleep(1)
 
     if skipped:
         logger.debug('supercasas: skipped %d listings (non-USD or incomplete)', skipped)
