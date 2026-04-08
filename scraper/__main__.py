@@ -13,6 +13,11 @@ from pathlib import Path
 from types import ModuleType
 
 import scraper.sites.corotos as corotos
+import scraper.sites.supercasas as supercasas
+import scraper.sites.miscasasrd as miscasasrd
+import scraper.sites.mercadolibre as mercadolibre
+import scraper.sites.plusval as plusval
+import scraper.sites.indominicana as indominicana
 import scraper.db as db
 
 # ---------------------------------------------------------------------------
@@ -22,15 +27,15 @@ import scraper.db as db
 # ---------------------------------------------------------------------------
 REGISTRY: dict[str, ModuleType] = {
     'corotos': corotos,
-    # 'supercasas': supercasas,      # Phase 1 — implement in Unit 5
-    # 'miscasasrd': miscasasrd,      # Phase 1 — implement in Unit 5
-    # 'mercadolibre': mercadolibre,  # Phase 1 — implement in Unit 5
-    # 'plusval': plusval,            # Phase 1 — implement in Unit 5
-    # 'indominicana': indominicana,  # Phase 1 — implement in Unit 5
-    # 'casaspb': casaspb,            # Phase 1 — deferred (EasyBroker clone of miscasasrd)
-    # 'remaxrd': None,               # Phase 2 — Next.js, JS rendering required
-    # 'apartamentosrd': None,        # Phase 2 — Domiclick platform, JS rendering required
-    # 'tucasard': None,              # Phase 2 — Domiclick platform (same as apartamentosrd)
+    'supercasas': supercasas,
+    'miscasasrd': miscasasrd,
+    'mercadolibre': mercadolibre,
+    'plusval': plusval,
+    'indominicana': indominicana,
+    # 'casaspb': casaspb,      # Phase 1 — deferred (EasyBroker clone of miscasasrd)
+    # 'remaxrd': None,         # Phase 2 — Next.js, JS rendering required
+    # 'apartamentosrd': None,  # Phase 2 — Domiclick platform, JS rendering required
+    # 'tucasard': None,        # Phase 2 — Domiclick platform (same as apartamentosrd)
 }
 
 # ---------------------------------------------------------------------------
