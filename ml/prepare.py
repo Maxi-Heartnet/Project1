@@ -14,6 +14,7 @@ def clean(df):
     df = df.dropna(subset=['price', 'area_m2'])
     df = df[(df['price'] >= PRICE_MIN) & (df['price'] <= PRICE_MAX)].copy()
     df['bedrooms'] = df['bedrooms'].fillna(df['bedrooms'].median())
+    # sector: no normalization — values are stored as-is from the source data.str.title()
     return df
 
 

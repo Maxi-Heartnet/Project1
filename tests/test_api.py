@@ -209,3 +209,94 @@ def test_frontend_serves_when_known_sectors_empty(client):
         assert '<datalist' in response.text
     finally:
         model_store['known_sectors'] = original
+
+
+# --- Unit 0 regressions: static file extraction ---
+
+def test_frontend_links_to_stylesheet(client):
+    response = client.get('/')
+    assert 'href="/static/style.css"' in response.text
+
+
+def test_frontend_links_to_main_js(client):
+    response = client.get('/')
+    assert 'src="/static/main.js"' in response.text
+
+
+def test_frontend_has_no_inline_style_block(client):
+    response = client.get('/')
+    assert '<style>' not in response.text
+
+
+# --- Unit 1: main page enhancements ---
+
+def test_frontend_contains_clear_button(client):
+    response = client.get('/')
+    assert 'Clear' in response.text
+
+
+def test_frontend_contains_fill_randomly_button(client):
+    response = client.get('/')
+    assert 'Fill randomly' in response.text
+
+
+def test_frontend_contains_about_me_link(client):
+    response = client.get('/')
+    assert 'href="/about"' in response.text
+    assert 'About Me' in response.text
+
+
+def test_frontend_clear_and_fill_buttons_are_type_button(client):
+    # type="button" prevents Enter/Space from submitting the form (keyboard test)
+    response = client.get('/')
+    assert 'id="clear-btn"' in response.text
+    assert 'id="fill-btn"' in response.text
+    # Both buttons must declare type="button" so keyboard activation doesn't submit the form
+    assert response.text.count('type="button"') >= 2
+
+
+# --- Unit 2: About Me page ---
+
+def test_about_returns_200(client):
+    response = client.get('/about')
+    assert response.status_code == 200
+
+
+def test_about_content_type_is_html(client):
+    response = client.get('/about')
+    assert 'text/html' in response.headers['content-type']
+
+
+def test_about_contains_name(client):
+    response = client.get('/about')
+    assert 'Misael' in response.text
+
+
+def test_about_contains_title(client):
+    response = client.get('/about')
+    assert 'Full Stack' in response.text
+
+
+def test_about_contains_back_link(client):
+    response = client.get('/about')
+    assert 'href="/"' in response.text
+
+
+def test_about_contains_fastapi_skill(client):
+    response = client.get('/about')
+    assert 'FastAPI' in response.text
+
+
+def test_about_contains_featured_project(client):
+    response = client.get('/about')
+    assert 'Santo Domingo House Price Predictor' in response.text
+
+
+def test_about_links_to_shared_stylesheet(client):
+    response = client.get('/about')
+    assert 'href="/static/style.css"' in response.text
+
+
+def test_about_has_no_script_tag(client):
+    response = client.get('/about')
+    assert '<script' not in response.text
