@@ -18,9 +18,9 @@ logger = logging.getLogger(__name__)
 SUPERCASAS_BASE = 'https://www.supercasas.com'
 LISTING_URL = 'https://www.supercasas.com/buscar/?Tipo=2&PagingPageSkip={skip}'
 
-CARD_SELECTOR = 'li.normal'
-PRICE_SELECTOR = '.title3'
-LOCATION_SELECTOR = '.title2'
+CARD_SELECTOR = '#bigsearch-results-inner-results li.special'
+PRICE_SELECTOR = '.title2'
+LOCATION_SELECTOR = '.title1'
 
 HEADERS = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
 
@@ -34,7 +34,12 @@ def _first_number(text):
 
 
 def _parse_bedrooms(text):
-    """Return bedroom count from text containing 'N hab' or 'N habitacion', or None."""
+    """Return bedroom count from 'Habitaciones : N' format, or None."""
+    # New DOM format: "Habitaciones : 3"
+    m = re.search(r'Habitaciones\s*:\s*(\d+)', text, re.IGNORECASE)
+    if m:
+        return int(m.group(1))
+    # Fallback: "N hab" format
     m = re.search(r'(\d+)\s*hab', text, re.IGNORECASE)
     if m:
         return int(m.group(1))
@@ -42,8 +47,9 @@ def _parse_bedrooms(text):
 
 
 def _parse_area(text):
-    """Return area in m2 from text containing 'N m²' or 'N m2', or None."""
-    m = re.search(r'(\d+(?:[.,]\d+)?)\s*m[²2]', text, re.IGNORECASE)
+    """Return area in m2 from 'Construccion : N Mt2' or standard 'N m²', or None."""
+    # Supercasas uses 'Mt2' (e.g. 'Construcción : 239 Mt2')
+    m = re.search(r'(\d+(?:[.,]\d+)?)\s*[Mm]t?[2²]', text)
     if m:
         return float(re.sub(r',', '.', m.group(1)))
     return None
