@@ -20,6 +20,9 @@ import scraper.sites.mercadolibre as mercadolibre
 import scraper.sites.plusval as plusval
 import scraper.sites.indominicana as indominicana
 import scraper.sites.casaspb as casaspb
+import scraper.sites.remaxrd as remaxrd
+import scraper.sites.apartamentosrd as apartamentosrd
+import scraper.sites.tucasard as tucasard
 import scraper.db as db
 
 # ---------------------------------------------------------------------------
@@ -35,9 +38,9 @@ REGISTRY: dict[str, ModuleType] = {
     'plusval': plusval,
     'indominicana': indominicana,
     'casaspb': casaspb,
-    # 'remaxrd': remaxrd,           # Phase 2 — Next.js, JS rendering required
-    # 'apartamentosrd': apartamentosrd,  # Phase 2 — Domiclick platform, JS rendering required
-    # 'tucasard': tucasard,         # Phase 2 — Domiclick platform (same as apartamentosrd)
+    'remaxrd': remaxrd,
+    'apartamentosrd': apartamentosrd,
+    'tucasard': tucasard,
 }
 
 # ---------------------------------------------------------------------------
