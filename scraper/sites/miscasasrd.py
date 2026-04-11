@@ -26,8 +26,8 @@ HEADERS = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/
 
 
 def _parse_bedrooms(text):
-    """Return bedroom count from text containing bed/hab/recámara indicator, or None."""
-    m = re.search(r'(\d+)\s*(?:hab|bed|rec[aá]mara)', text, re.IGNORECASE)
+    """Return bedroom count from text containing bed/hab/dormitorio/recámara indicator, or None."""
+    m = re.search(r'(\d+)\s*(?:hab|bed|dormitorio|rec[aá]mara)', text, re.IGNORECASE)
     if m:
         return int(m.group(1))
     return None
