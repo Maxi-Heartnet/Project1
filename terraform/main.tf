@@ -98,6 +98,9 @@ resource "aws_instance" "main" {
   key_name               = aws_key_pair.main.key_name
   vpc_security_group_ids = [aws_security_group.main.id]
 
+  # Ensure the rendered supervisor config exists before provisioning starts
+  depends_on = [local_file.supervisor_conf]
+
   connection {
     type        = "ssh"
     user        = "ubuntu"
@@ -138,7 +141,8 @@ resource "aws_instance" "main" {
   }
 
   # -------------------------------------------------------------------------
-  # file provisioners — upload gitignored data and model
+  # file provisioners — upload gitignored data and model, plus rendered
+  # supervisor config (which contains secrets injected by templatefile).
   # (run after remote-exec #1 so target dirs exist)
   # -------------------------------------------------------------------------
   provisioner "file" {
@@ -151,14 +155,21 @@ resource "aws_instance" "main" {
     destination = "/home/ubuntu/Project1/ml/model.pkl"
   }
 
+  # Rendered supervisor config (contains Google Maps API key via templatefile)
+  # Source path is the local_file.supervisor_conf output; uploaded to /tmp.
+  provisioner "file" {
+    source      = local_file.supervisor_conf.filename
+    destination = "/tmp/supervisor.conf.rendered"
+  }
+
   # -------------------------------------------------------------------------
   # remote-exec #2 — Supervisor + Nginx config + health check
   # (run after file provisioners so model and data are in place)
   # -------------------------------------------------------------------------
   provisioner "remote-exec" {
     inline = [
-      # --- Supervisor ---
-      "sudo cp /home/ubuntu/Project1/deploy/supervisor.conf /etc/supervisor/conf.d/predict-api.conf",
+      # --- Supervisor (rendered config uploaded via file provisioner to /tmp) ---
+      "sudo cp /tmp/supervisor.conf.rendered /etc/supervisor/conf.d/predict-api.conf",
       "sudo mkdir -p /var/log/predict-api",
       "sudo supervisorctl reread",
       "sudo supervisorctl update",
@@ -190,4 +201,18 @@ resource "aws_instance" "main" {
 resource "aws_eip" "main" {
   instance = aws_instance.main.id
   domain   = "vpc"
+}
+
+# ---------------------------------------------------------------------------
+# Supervisor config — rendered from template with env vars injected at plan time
+# ---------------------------------------------------------------------------
+resource "local_file" "supervisor_conf" {
+  content  = templatefile("${path.module}/../deploy/supervisor.conf.tpl", {
+    google_maps_api_key = var.google_maps_api_key
+    maps_map_id         = var.maps_map_id
+  })
+  filename = "${path.module}/supervisor.conf.rendered"
+
+  # Prevent accidental exposure in file-system logs
+  file_permission = "0600"
 }

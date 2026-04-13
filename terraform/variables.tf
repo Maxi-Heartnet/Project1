@@ -26,3 +26,25 @@ variable "ssh_cidr" {
   type        = string
   default     = "0.0.0.0/0"
 }
+
+variable "google_maps_api_key" {
+  description = <<-EOT
+    Google Maps JavaScript API key.
+    Obtain from Google Cloud Console > APIs & Services > Credentials.
+    Restrict to HTTP referrers (production domain) and Maps JavaScript API only.
+    Add to terraform.tfvars (never commit that file).
+  EOT
+  type      = string
+  sensitive = true
+}
+
+variable "maps_map_id" {
+  description = <<-EOT
+    Google Cloud Map ID required by AdvancedMarkerElement.
+    Obtain from Google Cloud Console > Google Maps Platform > Map Management.
+    Use "DEMO_MAP_ID" for local development (markers render but styling is limited).
+    Add to terraform.tfvars (never commit that file).
+  EOT
+  type      = string
+  sensitive = true
+}

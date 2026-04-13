@@ -15,3 +15,13 @@
 # Restrict to your own IP to reduce attack surface:
 #   ssh_cidr = "203.0.113.42/32"   # replace with your actual IP
 # ssh_cidr = "0.0.0.0/0"
+
+# Google Maps JavaScript API key (required — no default).
+# Obtain: Google Cloud Console > APIs & Services > Credentials > Create Credentials > API key
+# Restrict the key to: HTTP referrers matching https://<your-domain>/* AND Maps JavaScript API.
+# google_maps_api_key = "AIza..."
+
+# Google Cloud Map ID for AdvancedMarkerElement support (required — no default).
+# Obtain: Google Cloud Console > Google Maps Platform > Map Management > Create Map ID
+# Use "DEMO_MAP_ID" for local development (limited styling but markers work).
+# maps_map_id = "your-map-id-here"
