@@ -21,7 +21,7 @@ directory=/home/ubuntu/Project1
 user=ubuntu
 
 ; Environment variables injected at deploy time via Terraform templatefile().
-; ${...} is Terraform interpolation syntax, not shell.
+; $${...} is Terraform interpolation syntax, not shell.
 ; If supervisor fails to start after adding new env vars, check:
 ;   /var/log/predict-api/stderr.log
 environment=GOOGLE_MAPS_API_KEY="${google_maps_api_key}",MAPS_MAP_ID="${maps_map_id}"
