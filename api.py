@@ -171,8 +171,8 @@ async def lifespan(app: FastAPI):
     try:
         with open(SECTOR_COORDS_PATH, encoding='utf-8') as f:
             model_store['sector_coords'] = json.load(f)
-    except FileNotFoundError:
-        logger.warning('sector_coords.json not found — map will show no pins')
+    except (FileNotFoundError, json.JSONDecodeError, ValueError) as exc:
+        logger.warning('sector_coords.json unavailable — map will show no pins: %s', exc)
         model_store['sector_coords'] = {}
     yield
     model_store.clear()
