@@ -219,7 +219,7 @@ def index() -> HTMLResponse:
         .replace('__SECTORS__', json.dumps(sectors).replace('</', '\\/'))
         .replace('__SECTOR_COORDS__', json.dumps(sector_coords).replace('</', '\\/'))
         .replace('__MAPS_API_KEY__', MAPS_API_KEY)
-        .replace('__MAPS_MAP_ID__', MAPS_MAP_ID)
+        .replace('"__MAPS_MAP_ID__"', json.dumps(MAPS_MAP_ID))
     )
     return HTMLResponse(content=html)
 
