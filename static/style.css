@@ -103,7 +103,21 @@ input:focus, select:focus {
 .stat-label { color: #666; }
 .stat-value { color: #222; font-weight: 500; }
 .result-error { color: #c0392b; font-weight: 500; }
+/* Map card */
+#map-card { margin-top: 1.25rem; padding: 0; overflow: hidden; }
+#map-container { height: 350px; width: 100%; background: #f0f0f0; position: relative; }
+.map-loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #888;
+  font-size: .9rem;
+  pointer-events: none;
+}
+#map-fallback { padding: 1rem 1.5rem; color: #666; font-size: .9rem; }
 @media (max-width: 479px) {
   .form-grid { grid-template-columns: 1fr; }
   .page-header { flex-direction: column; align-items: flex-start; gap: .5rem; }
+  #map-container { height: 260px; }
 }
