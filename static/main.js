@@ -129,12 +129,13 @@
     r.textContent = 'Fill in the form above to see a price estimate.';
     btn.disabled = false;
     btn.textContent = 'Estimate Price';
+    if (window.resetMap) window.resetMap();
   }
 
   function fillRandom() {
     if (!SECTORS.length) { return; }
-    document.getElementById('sector').value =
-      SECTORS[Math.floor(Math.random() * SECTORS.length)];
+    var randomSector = SECTORS[Math.floor(Math.random() * SECTORS.length)];
+    document.getElementById('sector').value = randomSector;
     document.getElementById('property_type').value =
       ['apartment', 'house'][Math.floor(Math.random() * 2)];
     document.getElementById('bedrooms').value =
@@ -147,6 +148,7 @@
     r.textContent = 'Fill in the form above to see a price estimate.';
     btn.disabled = false;
     btn.textContent = 'Estimate Price';
+    if (window.updateMapForSector) window.updateMapForSector(randomSector);
   }
 
   clearBtn.addEventListener('click', clearForm);
