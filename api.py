@@ -87,7 +87,7 @@ _PAGE_HTML = """\
 </main>
 <script>var SECTORS = __SECTORS__; var SECTOR_COORDS = __SECTOR_COORDS__; var MAPS_MAP_ID = "__MAPS_MAP_ID__";</script>
 <script src="/static/map.js"></script>
-<script async defer src="https://maps.googleapis.com/maps/api/js?key=__MAPS_API_KEY__&callback=initMap"></script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=__MAPS_API_KEY__&libraries=marker&callback=initMap"></script>
 <script src="/static/main.js"></script>
 </body>
 </html>
