@@ -300,3 +300,63 @@ def test_about_links_to_shared_stylesheet(client):
 def test_about_has_no_script_tag(client):
     response = client.get('/about')
     assert '<script' not in response.text
+
+
+# --- Unit 3: Google Maps sector panel ---
+
+def test_frontend_map_container_present(client):
+    response = client.get('/')
+    assert 'id="map-container"' in response.text
+
+
+def test_frontend_map_card_present(client):
+    response = client.get('/')
+    assert 'id="map-card"' in response.text
+
+
+def test_frontend_no_unreplaced_maps_api_key_placeholder(client):
+    response = client.get('/')
+    assert '__MAPS_API_KEY__' not in response.text
+
+
+def test_frontend_no_unreplaced_sector_coords_placeholder(client):
+    response = client.get('/')
+    assert '__SECTOR_COORDS__' not in response.text
+
+
+def test_frontend_no_unreplaced_maps_map_id_placeholder(client):
+    response = client.get('/')
+    assert '__MAPS_MAP_ID__' not in response.text
+
+
+def test_frontend_maps_sdk_script_tag_present(client):
+    response = client.get('/')
+    assert 'maps.googleapis.com/maps/api/js' in response.text
+
+
+def test_frontend_map_js_script_tag_present(client):
+    response = client.get('/')
+    assert 'src="/static/map.js"' in response.text
+
+
+def test_frontend_sector_coords_global_injected(client):
+    response = client.get('/')
+    assert 'var SECTOR_COORDS' in response.text
+
+
+def test_frontend_map_fallback_element_present(client):
+    response = client.get('/')
+    assert 'id="map-fallback"' in response.text
+
+
+def test_frontend_serves_when_sector_coords_empty(client):
+    # Graceful fallback: page still loads when sector_coords is empty dict
+    from api import model_store
+    original = model_store.get('sector_coords')
+    model_store['sector_coords'] = {}
+    try:
+        response = client.get('/')
+        assert response.status_code == 200
+        assert 'var SECTOR_COORDS = {}' in response.text
+    finally:
+        model_store['sector_coords'] = original
