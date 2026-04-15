@@ -7,4 +7,4 @@ pytest
 fastapi
 uvicorn[standard]
 httpx
-playwright
+pytest-playwright

@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -14,6 +15,10 @@ from chatbot.chat import predict_range, predict_tier
 from ml.prepare import ALL_FEATURES
 
 MODEL_PATH = Path(__file__).parent / 'ml' / 'model.pkl'
+SECTOR_COORDS_PATH = Path(__file__).parent / 'static' / 'sector_coords.json'
+
+MAPS_API_KEY = os.getenv('GOOGLE_MAPS_API_KEY', '')
+MAPS_MAP_ID = os.getenv('MAPS_MAP_ID', '')
 
 logger = logging.getLogger(__name__)
 model_store = {}
@@ -73,8 +78,16 @@ _PAGE_HTML = """\
     </form>
   </div>
   <div id="results" aria-live="polite">Fill in the form above to see a price estimate.</div>
+  <div class="card" id="map-card">
+    <div id="map-container">
+      <p class="map-loading">Loading map\u2026</p>
+    </div>
+    <div id="map-fallback" hidden>Map unavailable \u2014 use the text field to enter a sector.</div>
+  </div>
 </main>
-<script>var SECTORS = __SECTORS__;</script>
+<script>var SECTORS = __SECTORS__; var SECTOR_COORDS = __SECTOR_COORDS__; var MAPS_MAP_ID = "__MAPS_MAP_ID__";</script>
+<script src="/static/map.js"></script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=__MAPS_API_KEY__&libraries=marker&callback=initMap"></script>
 <script src="/static/main.js"></script>
 </body>
 </html>
@@ -155,6 +168,12 @@ async def lifespan(app: FastAPI):
     except (AttributeError, IndexError, KeyError, TypeError) as exc:
         logger.warning('Could not extract sector list from encoder: %s', exc)
         model_store['known_sectors'] = []
+    try:
+        with open(SECTOR_COORDS_PATH, encoding='utf-8') as f:
+            model_store['sector_coords'] = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError, ValueError) as exc:
+        logger.warning('sector_coords.json unavailable — map will show no pins: %s', exc)
+        model_store['sector_coords'] = {}
     yield
     model_store.clear()
 
@@ -194,7 +213,14 @@ class PredictResponse(BaseModel):
 @app.get('/', response_class=HTMLResponse)
 def index() -> HTMLResponse:
     sectors = model_store.get('known_sectors') or []
-    html = _PAGE_HTML.replace('__SECTORS__', json.dumps(sectors).replace('</', '\\/'))
+    sector_coords = model_store.get('sector_coords') or {}
+    html = (
+        _PAGE_HTML
+        .replace('__SECTORS__', json.dumps(sectors).replace('</', '\\/'))
+        .replace('__SECTOR_COORDS__', json.dumps(sector_coords).replace('</', '\\/'))
+        .replace('__MAPS_API_KEY__', MAPS_API_KEY)
+        .replace('"__MAPS_MAP_ID__"', json.dumps(MAPS_MAP_ID))
+    )
     return HTMLResponse(content=html)
 
 
