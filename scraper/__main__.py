@@ -19,6 +19,10 @@ import scraper.sites.miscasasrd as miscasasrd
 import scraper.sites.mercadolibre as mercadolibre
 import scraper.sites.plusval as plusval
 import scraper.sites.indominicana as indominicana
+import scraper.sites.casaspb as casaspb
+import scraper.sites.remaxrd as remaxrd
+import scraper.sites.apartamentosrd as apartamentosrd
+import scraper.sites.tucasard as tucasard
 import scraper.db as db
 
 # ---------------------------------------------------------------------------
@@ -33,10 +37,10 @@ REGISTRY: dict[str, ModuleType] = {
     'mercadolibre': mercadolibre,
     'plusval': plusval,
     'indominicana': indominicana,
-    # 'casaspb': casaspb,      # Phase 1 — deferred (EasyBroker clone of miscasasrd)
-    # 'remaxrd': None,         # Phase 2 — Next.js, JS rendering required
-    # 'apartamentosrd': None,  # Phase 2 — Domiclick platform, JS rendering required
-    # 'tucasard': None,        # Phase 2 — Domiclick platform (same as apartamentosrd)
+    'casaspb': casaspb,
+    'remaxrd': remaxrd,
+    'apartamentosrd': apartamentosrd,
+    'tucasard': tucasard,
 }
 
 # ---------------------------------------------------------------------------
@@ -155,7 +159,7 @@ def cmd_export(
         sys.exit(1)
 
     Path(csv_path).parent.mkdir(parents=True, exist_ok=True)
-    with open(csv_path, 'w', newline='') as f:
+    with open(csv_path, 'w', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(clean)

@@ -118,3 +118,47 @@
 4. plusval.com.do — all USD, simpler price parsing
 5. indominicana.com — largest catalog depth
 6. casaspb.com — deferred (EasyBroker clone of miscasasrd; trivial once miscasasrd done)
+
+---
+
+## Phase 2 — Playwright Spike (2026-04-10)
+
+All three Phase 2 sites confirmed renderable with `wait_until='networkidle'` (resolved within 30 s in testing). Playwright `sync_api` with `page.content()` → BeautifulSoup is the confirmed pattern.
+
+### remaxrd.com
+
+- **Listing URL:** `https://www.remaxrd.com/propiedades`
+- **Pagination:** None — single page only. URL params `?page=2` return the same 16 cards; stop after page 1.
+- **Cards/page:** 16
+- **Card selector:** `a[target="_blank"][href*="/propiedad/"]`
+- **Source URL:** relative `/propiedad/...` → prepend `https://www.remaxrd.com`
+- **Property type:** `h3` text within card
+- **Sector:** `span` sibling immediately after `h3` — e.g. `"ENSANCHE NACO, SANTO DOMINGO DE GUZMÁN"` → first comma-segment (lowercased to title case)
+- **Price:** first `<span>` in the price container containing `"US$"` — format `"US$565,000"` (parse with `parse_price_usd`)
+- **Bedrooms:** `<li>` containing `img[src*="icon_bed_remaxrd.svg"]` — text is the bare integer
+- **Area:** `<li>` containing `img[src*="icon_rule_remaxrd.svg"]` — inner `<span>` text e.g. `"233.60 M2"` (use `get_text(strip=True)`)
+- **networkidle:** Confirmed reliable within 30 s
+- **Note:** CSS-in-JS class names (`sc-*`, `css-*`) are unstable across deploys. All selectors above use stable semantic attributes only.
+
+### apartamentosrd.com.do
+
+- **Base URL:** `https://www.apartamentosrd.com.do`
+- **Listing URL:** `https://www.apartamentosrd.com.do/propiedades?listing_type=1&page={page}`
+- **Pagination:** `?listing_type=1&page=N`; stop when page yields no `div.card.h-100` cards
+- **Cards/page:** 30
+- **Card selector:** `div.card.h-100`
+- **Anchor:** `a[href*="/propiedad/"]` inside card — relative href, prepend base URL
+- **Property type:** `<h5>` inside `div.property-content`
+- **Sector:** `<span>` containing `<i class="fas fa-map-marker-alt">` — e.g. `"Serrallés, Santo Domingo D.N."` → first comma-segment
+- **Price:** `<span>` in the price `<ul>` — `"US$ 165,000"` or `"RD$ X,XXX,XXX"` (skip DOP via `parse_price_usd`)
+- **Bedrooms:** `<li>` with `<i class="fas fa-bed">` — e.g. `"1 Hab."` or `"Desde 1 hasta 3 Hab."` → extract first integer
+- **Area:** `<li>` with `<i class="fas fa-arrows-alt">` — e.g. `"58 Mt2"` (use `_parse_area` with `mt2` pattern)
+- **networkidle:** Confirmed reliable within 30 s
+
+### tucasard.com
+
+- **Base URL:** `https://www.tucasard.com`
+- **Structural identity:** 100% identical to apartamentosrd.com.do (same Domiclick platform)
+- **All selectors, pagination, and field patterns:** identical to apartamentosrd above
+- **networkidle:** Confirmed reliable within 30 s
+- **Implementation:** Single `_domiclick.py` helper parameterised by `base_url` covers both sites

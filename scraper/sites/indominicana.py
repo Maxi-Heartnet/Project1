@@ -86,7 +86,8 @@ def scrape(max_pages: int = 50) -> list:
             break
 
         for card in cards:
-            card_text = card.get_text(separator=' ', strip=True)
+            # Use no separator so m<sup>2</sup> stays as "m2" not "m 2"
+            card_text = card.get_text(strip=True)
 
             # Price — skip non-USD listings
             price = _parse_price_usd(card_text)
@@ -95,26 +96,17 @@ def scrape(max_pages: int = 50) -> list:
                 logger.debug('indominicana: non-USD or missing price, skipping')
                 continue
 
-            # Sector — from first location anchor, take text before comma
+            # Sector — from location anchor (may start with comma, e.g. ", Santo Domingo Este")
             sector = None
             for a in card.find_all('a', href=True):
                 a_text = a.get_text(strip=True)
-                if a_text and ',' in a_text:
-                    sector = a_text.split(',')[0].strip()
+                if not a_text:
+                    continue
+                # Strip leading/trailing commas then take first segment
+                parts = [p.strip() for p in a_text.split(',') if p.strip()]
+                if parts:
+                    sector = parts[0]
                     break
-                elif a_text and not a.get('href', '').startswith('/propiedades/'):
-                    # Could be a plain location tag without comma
-                    sector = a_text.strip()
-                    break
-            if not sector:
-                # Fallback: look for any location-looking anchor (not the property link)
-                for a in card.find_all('a', href=True):
-                    href = a.get('href', '')
-                    if '/propiedades/' not in href:
-                        a_text = a.get_text(strip=True)
-                        if a_text:
-                            sector = a_text.split(',')[0].strip()
-                            break
             if not sector:
                 skipped += 1
                 logger.debug('indominicana: missing sector, skipping')

@@ -10,46 +10,51 @@ from scraper.sites.supercasas import scrape, SUPERCASAS_BASE
 # HTML fixtures
 # ---------------------------------------------------------------------------
 
+# Fixtures match the current supercasas.com DOM (as of 2026-04):
+# - Cards are li.special inside #bigsearch-results-inner-results
+# - .title1 = sector/location, .title2 = price ("Venta: US$ N")
+# - Bedrooms shown as "Habitaciones : N", area as "N Mt2"
 USD_CARD = """
-<li class="normal">
+<li class="special">
   <a href="/apartamentos-venta-piantini/1385955/">
-    <span class="title3">US$ 140,000</span>
-    <span class="title2">Piantini</span>
+    <div class="title1">Piantini</div>
+    <div class="title2">Venta: US$ 140,000</div>
     <span>Apartamento en Piantini</span>
-    <span>3 hab</span>
-    <span>95 m²</span>
+    <span>Habitaciones : 3</span>
+    <span>Construcción : 95 Mt2</span>
   </a>
 </li>
 """
 
 RD_CARD = """
-<li class="normal">
+<li class="special">
   <a href="/apartamentos-venta-naco/999999/">
-    <span class="title3">RD$ 9,500,000</span>
-    <span class="title2">Naco</span>
+    <div class="title1">Naco</div>
+    <div class="title2">Venta: RD$ 9,500,000</div>
     <span>Apartamento en Naco</span>
-    <span>2 hab</span>
-    <span>80 m²</span>
+    <span>Habitaciones : 2</span>
+    <span>Construcción : 80 Mt2</span>
   </a>
 </li>
 """
 
 NO_BEDROOMS_CARD = """
-<li class="normal">
+<li class="special">
   <a href="/apartamentos-venta-evaristo/111111/">
-    <span class="title3">US$ 200,000</span>
-    <span class="title2">Evaristo Morales</span>
+    <div class="title1">Evaristo Morales</div>
+    <div class="title2">Venta: US$ 200,000</div>
     <span>Apartamento Evaristo Morales</span>
-    <span>120 m²</span>
+    <span>Construcción : 120 Mt2</span>
   </a>
 </li>
 """
 
-PAGE_WITH_CARDS = f'<html><body><ul>{USD_CARD}</ul></body></html>'
-PAGE_EMPTY = '<html><body><ul></ul></body></html>'
-PAGE_RD_ONLY = f'<html><body><ul>{RD_CARD}</ul></body></html>'
-PAGE_NO_BEDROOMS = f'<html><body><ul>{NO_BEDROOMS_CARD}</ul></body></html>'
-PAGE_TWO_CARDS = f'<html><body><ul>{USD_CARD}{USD_CARD.replace("1385955", "2222222")}</ul></body></html>'
+RESULTS_DIV = '<div id="bigsearch-results-inner-results"><ul>{cards}</ul></div>'
+PAGE_WITH_CARDS = f'<html><body>{RESULTS_DIV.format(cards=USD_CARD)}</body></html>'
+PAGE_EMPTY = f'<html><body>{RESULTS_DIV.format(cards="")}</body></html>'
+PAGE_RD_ONLY = f'<html><body>{RESULTS_DIV.format(cards=RD_CARD)}</body></html>'
+PAGE_NO_BEDROOMS = f'<html><body>{RESULTS_DIV.format(cards=NO_BEDROOMS_CARD)}</body></html>'
+PAGE_TWO_CARDS = f'<html><body>{RESULTS_DIV.format(cards=USD_CARD + USD_CARD.replace("1385955", "2222222"))}</body></html>'
 
 
 def _mock_response(html):
